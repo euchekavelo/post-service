@@ -1,1 +1,4 @@
-# post-service
+# Микросервис ***post-service*** для работы с постами.
+
+## UML-диаграмма классов с первоначальной структурой микросервиса
+![Class Diagram](https://www.plantuml.com/plantuml/png/RL7DIiGm4BxdAOOUXIv8Rq7AWbuMF2oMFKjfHmscIKccWbJVNPCDsqp9CT__j4TFlQDbqcBGlVTmjfvW5L33igXHmkLoUWelKgHHGaTEcVT8UtIlN3EY7voQILcJA-SFIzPBU5QU7ixXqOfVaVhYkrIebVdCKqm_8KkrdcIS6yAK8NHl_O0HUS5_Lf5rtx1kLPmvJRE6bNkxfkXaUC5tFQ9ePHHpyyKTkYyr87DkS7AbgxSqkRifA7oJyMpvxL-m00xm-aTho5cjqQNsRPBCzmLN38BAL63h-Wwg-oegHE6h7mu_xNvvrvH4ENfjA4PnGl0lbqGPc0kWhjlThRl9IS4YsToYW6ygQuvencNIVm00)
