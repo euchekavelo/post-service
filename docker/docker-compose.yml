@@ -1,0 +1,30 @@
+version: '3'
+services:
+  psql:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    restart: on-failure
+    environment:
+      - POSTGRES_DB=posts
+      - POSTGRES_USER=postgre_user
+      - POSTGRES_PASSWORD=postgre_secret_password
+    volumes:
+      - database-data:/var/lib/postgresql/data/
+
+
+  minio:
+    image: bitnami/minio:latest
+    ports:
+      - "9100:9000"
+      - "9101:9001"
+    volumes:
+      - minio_storage:/data
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+
+
+volumes:
+  database-data:
+  minio_storage:
