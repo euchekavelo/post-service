@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: euchekavelo
+      comment: creating database structure.
+      changes:
+        - sqlFile:
+            encoding: UTF-8
+            path: ../sql-scripts/creating_database_structure.sql
+            relativeToChangelogFile: true

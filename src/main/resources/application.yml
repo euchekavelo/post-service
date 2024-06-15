@@ -1,3 +1,30 @@
 spring:
   application:
     name: post-service
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/posts}
+    username: ${DATABASE_USER:postgre_user}
+    password: ${DATABASE_PASSWORD:postgre_secret_password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        temp:
+          use_jdbc_metadata_defaults: false
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+    hibernate:
+      ddl-auto: validate
+      format_sql: true
+    show-sql: true
+
+
+aws:
+  s3:
+    minio:
+      endpoint: ${MINIO_ENDPOINT:http://localhost:9100/}
+      signer: AWSS3V4SignerType
+      access-key: ${MINIO_ACCESS_KEY:GJqZWioEsEMp0mqqKAG5}
+      secret-key: ${MINIO_SECRET_KEY:cJWuQu42F21LR1cgPlFo3CRoWgp1qaYQriljkQfB}
+      region: ${MINIO_REGION:ru-center}
+      bucket-posts: ${MINIO_BUCKET_NAME:posts}
