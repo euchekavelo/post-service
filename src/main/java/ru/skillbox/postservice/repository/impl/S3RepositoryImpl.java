@@ -1,17 +1,16 @@
 package ru.skillbox.postservice.repository.impl;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.RestoreObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import ru.skillbox.postservice.config.properties.S3MinioProperties;
 import ru.skillbox.postservice.repository.S3Repository;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class S3RepositoryImpl implements S3Repository {
@@ -36,19 +35,11 @@ public class S3RepositoryImpl implements S3Repository {
     }
 
     @Override
-    public void restore(String name) {
-        RestoreObjectRequest restoreObjectRequest = new RestoreObjectRequest(s3MinioProperties.getBucketPosts(), name);
-        amazonS3Client.restoreObjectV2(restoreObjectRequest);
-    }
-
-    @Override
-    public void deleteAllByNames(List<String> names) {
-        List<DeleteObjectsRequest.KeyVersion> keys = new ArrayList<>();
-        names.forEach(name -> keys.add(new DeleteObjectsRequest.KeyVersion(name)));
-
-        DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(s3MinioProperties.getBucketPosts());
-        deleteObjectsRequest.setKeys(keys);
-
-        amazonS3Client.deleteObjects(deleteObjectsRequest);
+    public Optional<S3Object> get(String name) {
+        try {
+            return Optional.of(amazonS3Client.getObject(s3MinioProperties.getBucketPosts(), name));
+        } catch (AmazonServiceException exception) {
+            return Optional.empty();
+        }
     }
 }
