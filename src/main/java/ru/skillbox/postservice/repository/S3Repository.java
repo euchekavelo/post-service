@@ -1,9 +1,10 @@
 package ru.skillbox.postservice.repository;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
 
 import java.io.InputStream;
-import java.util.List;
+import java.util.Optional;
 
 public interface S3Repository {
 
@@ -11,7 +12,5 @@ public interface S3Repository {
 
     void delete(String name);
 
-    void restore(String name);
-
-    void deleteAllByNames(List<String> names);
+    Optional<S3Object> get(String name);
 }

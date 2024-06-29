@@ -44,7 +44,7 @@ public class PostController {
     }
 
     @DeleteMapping("/{uuid}")
-    public ResponseEntity<Void> deletePostByID(@PathVariable UUID uuid) throws PostNotFoundException {
+    public ResponseEntity<Void> deletePostByID(@PathVariable UUID uuid) throws PostNotFoundException, IOException {
         postService.deletePostById(uuid);
 
         return ResponseEntity.noContent().build();

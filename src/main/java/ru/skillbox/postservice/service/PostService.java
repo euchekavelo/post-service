@@ -20,7 +20,7 @@ public interface PostService {
 
     PostDtoResponse getPostById(UUID uuid) throws PostNotFoundException;
 
-    void deletePostById(UUID uuid) throws PostNotFoundException;
+    void deletePostById(UUID uuid) throws PostNotFoundException, IOException;
 
     PostDtoResponse updatePostById(UUID uuid, PostDtoRequest postDtoRequest, MultipartFile[] files)
             throws PostNotFoundException, IncorrectFileFormatException, IOException;
@@ -32,5 +32,5 @@ public interface PostService {
 
     PostPhotoDtoResponse getPostPhotoById(UUID postId, UUID photoId) throws PostNotFoundException, PhotoNotFoundException;
 
-    void deletePostPhotoById(UUID postId, UUID photoId) throws PhotoNotFoundException;
+    void deletePostPhotoById(UUID postId, UUID photoId) throws PhotoNotFoundException, IOException;
 }

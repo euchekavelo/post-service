@@ -35,11 +35,4 @@ public class Photo {
 
     @UpdateTimestamp
     private LocalDateTime modificationDate;
-
-    public Photo(UUID id, String link, String name, Post post) {
-        this.id = id;
-        this.link = link;
-        this.name = name;
-        this.post = post;
-    }
 }

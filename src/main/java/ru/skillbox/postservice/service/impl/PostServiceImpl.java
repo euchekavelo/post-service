@@ -1,6 +1,7 @@
 package ru.skillbox.postservice.service.impl;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,10 +10,7 @@ import ru.skillbox.postservice.config.properties.S3MinioProperties;
 import ru.skillbox.postservice.dto.request.PostDtoRequest;
 import ru.skillbox.postservice.dto.response.PostDtoResponse;
 import ru.skillbox.postservice.dto.response.PostPhotoDtoResponse;
-import ru.skillbox.postservice.exception.IncorrectFileContentException;
-import ru.skillbox.postservice.exception.IncorrectFileFormatException;
-import ru.skillbox.postservice.exception.PhotoNotFoundException;
-import ru.skillbox.postservice.exception.PostNotFoundException;
+import ru.skillbox.postservice.exception.*;
 import ru.skillbox.postservice.mapper.PhotoMapper;
 import ru.skillbox.postservice.mapper.PostMapper;
 import ru.skillbox.postservice.model.Photo;
@@ -65,7 +63,7 @@ public class PostServiceImpl implements PostService {
 
             return postMapper.postToPostDtoResponse(savedPost);
         } catch (Exception ex) {
-            s3Repository.deleteAllByNames(namesDownloadedFiles);
+            namesDownloadedFiles.forEach(s3Repository::delete);
             throw ex;
         }
     }
@@ -80,20 +78,28 @@ public class PostServiceImpl implements PostService {
         return postMapper.postToPostDtoResponse(optionalPost.get());
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public void deletePostById(UUID uuid) throws PostNotFoundException {
+    public void deletePostById(UUID uuid) throws PostNotFoundException, IOException {
         Optional<Post> optionalPost = postRepository.findById(uuid);
         if (optionalPost.isEmpty()) {
             throw new PostNotFoundException("The post with the specified ID was not found.");
         }
+
+        List<S3Object> s3ObjectList = new ArrayList<>();
 
         Post post = optionalPost.get();
         List<String> namesFiles = post.getPhotos().stream()
                 .map(Photo::getName)
                 .toList();
 
-        postRepository.delete(post);
-        s3Repository.deleteAllByNames(namesFiles);
+        try {
+            fillListDeletedS3Objects(namesFiles, s3ObjectList);
+            postRepository.delete(post);
+        } catch (Exception ex) {
+            uploadS3ObjectList(s3ObjectList);
+            throw ex;
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -117,7 +123,7 @@ public class PostServiceImpl implements PostService {
 
             return postMapper.postToPostDtoResponse(savedPost);
         } catch (Exception ex) {
-            s3Repository.deleteAllByNames(namesDownloadedFiles);
+            namesDownloadedFiles.forEach(s3Repository::delete);
             throw ex;
         }
     }
@@ -127,6 +133,7 @@ public class PostServiceImpl implements PostService {
         return postMapper.postListToPostDtoResponseList(postRepository.findAll());
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public List<PostPhotoDtoResponse> addPhotosToPost(UUID postId, MultipartFile[] files) throws PostNotFoundException,
             IncorrectFileFormatException, IOException, IncorrectFileContentException {
@@ -149,7 +156,7 @@ public class PostServiceImpl implements PostService {
 
             return photoMapper.photoListToPostPhotoDtoResponseList(savedPhotos);
         } catch (Exception ex) {
-            s3Repository.deleteAllByNames(namesDownloadedFiles);
+            namesDownloadedFiles.forEach(s3Repository::delete);
             throw ex;
         }
     }
@@ -164,20 +171,31 @@ public class PostServiceImpl implements PostService {
         return photoMapper.photoToPostPhotoDtoResponse(optionalPhoto.get());
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public void deletePostPhotoById(UUID postId, UUID photoId) throws PhotoNotFoundException {
+    public void deletePostPhotoById(UUID postId, UUID photoId) throws PhotoNotFoundException, IOException {
         Optional<Photo> optionalPhoto = photoRepository.findByIdAndPostId(photoId, postId);
         if (optionalPhoto.isEmpty()) {
             throw new PhotoNotFoundException("The photo with the specified ID was not found.");
         }
 
-        photoRepository.delete(optionalPhoto.get());
+        List<S3Object> s3ObjectList = new ArrayList<>();
+
+        try {
+            photoRepository.delete(optionalPhoto.get());
+            fillListDeletedS3Objects(List.of(optionalPhoto.get().getName()), s3ObjectList);
+        } catch (Exception ex) {
+            uploadS3ObjectList(s3ObjectList);
+            throw ex;
+        }
     }
 
     private List<Photo> getListPhotosToUploadToDatabase(Post post, MultipartFile[] files, List<String> namesDownloadedFiles)
             throws IncorrectFileFormatException, IOException {
 
-        if (areAllFilesEmpty(files)) {
+        if ((files.length == 1) && areAllFilesEmpty(files)
+                && Objects.requireNonNull(files[0].getOriginalFilename()).isEmpty()) {
+
             return new ArrayList<>();
         }
 
@@ -192,7 +210,7 @@ public class PostServiceImpl implements PostService {
             if (!isValidFormatFile(file)) {
                 String enumerationFileFormats = String.join(", ", CORRECT_FILE_FORMATS);
                 throw new IncorrectFileFormatException("Incorrect file format. Required formats: "
-                        + enumerationFileFormats);
+                        + enumerationFileFormats + ".");
             }
 
             String uniqueFileName = generateUniqueFileNameForUser(post, file);
@@ -234,5 +252,25 @@ public class PostServiceImpl implements PostService {
 
     private String generateShortLinkForFile(String fileName) {
         return s3MinioProperties.getBucketPosts() + "/" + fileName;
+    }
+
+    private void uploadS3ObjectList(List<S3Object> s3ObjectList) throws IOException {
+        for (S3Object s3Object : s3ObjectList) {
+            try (InputStream inputStream = s3Object.getObjectContent()) {
+                s3Repository.put(s3Object.getKey(), inputStream, s3Object.getObjectMetadata());
+            }
+        }
+    }
+
+    private void fillListDeletedS3Objects(List<String> namesFiles, List<S3Object> s3ObjectList) {
+        for (String fileName : namesFiles) {
+            Optional<S3Object> optionalS3Object = s3Repository.get(fileName);
+            if (optionalS3Object.isEmpty()) {
+                continue;
+            }
+
+            s3Repository.delete(fileName);
+            s3ObjectList.add(optionalS3Object.get());
+        }
     }
 }

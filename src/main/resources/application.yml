@@ -1,3 +1,7 @@
+server:
+  port: 8081
+
+
 spring:
   application:
     name: post-service
@@ -16,7 +20,7 @@ spring:
     hibernate:
       ddl-auto: validate
       format_sql: true
-    show-sql: true
+    show-sql: false
 
 
 aws:
@@ -24,7 +28,7 @@ aws:
     minio:
       endpoint: ${MINIO_ENDPOINT:http://localhost:9100/}
       signer: AWSS3V4SignerType
-      access-key: ${MINIO_ACCESS_KEY:GJqZWioEsEMp0mqqKAG5}
-      secret-key: ${MINIO_SECRET_KEY:cJWuQu42F21LR1cgPlFo3CRoWgp1qaYQriljkQfB}
+      access-key: ${MINIO_ACCESS_KEY:RzyURTi35DB023mcKrLX}
+      secret-key: ${MINIO_SECRET_KEY:IhPlt4HwJJ9XbTLDfRIzrujwzS6o3k3ZyWQzFMdn}
       region: ${MINIO_REGION:ru-center}
       bucket-posts: ${MINIO_BUCKET_NAME:posts}
