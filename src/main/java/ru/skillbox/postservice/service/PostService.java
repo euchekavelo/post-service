@@ -33,4 +33,6 @@ public interface PostService {
     PostPhotoDtoResponse getPostPhotoById(UUID postId, UUID photoId) throws PostNotFoundException, PhotoNotFoundException;
 
     void deletePostPhotoById(UUID postId, UUID photoId) throws PhotoNotFoundException, IOException;
+
+    List<PostPhotoDtoResponse> getPostPhotos(UUID postId) throws PostNotFoundException;
 }

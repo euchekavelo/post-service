@@ -3,7 +3,7 @@ CREATE SCHEMA IF NOT EXISTS posts_scheme;
 CREATE TABLE IF NOT EXISTS posts_scheme.posts (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 	title CHARACTER VARYING NOT NULL,
-    user_id UUID NOT NULL,
+    user_id UUID,
     description CHARACTER VARYING NOT NULL,
     creation_date TIMESTAMP NOT NULL,
     modification_date TIMESTAMP NOT NULL
