@@ -30,7 +30,7 @@ public interface PostService {
     List<PostPhotoDtoResponse> addPhotosToPost(UUID postId, MultipartFile[] files) throws PostNotFoundException,
             IncorrectFileFormatException, IOException, IncorrectFileContentException;
 
-    PostPhotoDtoResponse getPostPhotoById(UUID postId, UUID photoId) throws PostNotFoundException, PhotoNotFoundException;
+    PostPhotoDtoResponse getPostPhotoByIdAndPostId(UUID postId, UUID photoId) throws PhotoNotFoundException;
 
     void deletePostPhotoById(UUID postId, UUID photoId) throws PhotoNotFoundException, IOException;
 
