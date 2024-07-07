@@ -64,10 +64,10 @@ sonar {
 	properties {
 		property 'sonar.login', System.getenv('SONAR_TOKEN_ACCESS')
 		property 'sonar.host.url', System.getenv('SONAR_HOST_URL')
-		property 'sonar.coverage.exclusions', 'src/main/java/ru/skillbox/userservice/model/**, ' +
-				'src/main/java/ru/skillbox/userservice/dto/**, ' +
-				'src/main/java/ru/skillbox/userservice/exception/**, ' +
-				'src/main/java/ru/skillbox/userservice/*'
+		property 'sonar.coverage.exclusions', 'src/main/java/ru/skillbox/postservice/model/**, ' +
+				'src/main/java/ru/skillbox/postservice/dto/**, ' +
+				'src/main/java/ru/skillbox/postservice/exception/**, ' +
+				'src/main/java/ru/skillbox/postservice/*'
 	}
 }
 

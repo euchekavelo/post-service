@@ -86,7 +86,7 @@ public class PostController {
             })
     })
     @DeleteMapping("/{uuid}")
-    public ResponseEntity<Void> deletePostByID(@Parameter(description = "ID поста.") @PathVariable UUID uuid)
+    public ResponseEntity<Void> deletePostById(@Parameter(description = "ID поста.") @PathVariable UUID uuid)
             throws PostNotFoundException, IOException {
 
         postService.deletePostById(uuid);
@@ -186,9 +186,9 @@ public class PostController {
                                                                  @PathVariable UUID postId,
                                                                  @Parameter(description = "ID фотографии поста.")
                                                                  @PathVariable UUID photoId)
-            throws PostNotFoundException, PhotoNotFoundException {
+            throws PhotoNotFoundException {
 
-        return ResponseEntity.ok(postService.getPostPhotoById(postId, photoId));
+        return ResponseEntity.ok(postService.getPostPhotoByIdAndPostId(postId, photoId));
     }
 
     @Operation(summary = "Удалить конкретную фотографию из конкретного поста пользователя.")

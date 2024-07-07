@@ -166,7 +166,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostPhotoDtoResponse getPostPhotoById(UUID postId, UUID photoId) throws PhotoNotFoundException {
+    public PostPhotoDtoResponse getPostPhotoByIdAndPostId(UUID postId, UUID photoId) throws PhotoNotFoundException {
         Optional<Photo> optionalPhoto = photoRepository.findByIdAndPostId(photoId, postId);
         if (optionalPhoto.isEmpty()) {
             throw new PhotoNotFoundException("Не удалось найти фото поста по указанным критериям.");
@@ -240,7 +240,7 @@ public class PostServiceImpl implements PostService {
 
             Photo photo = new Photo();
             photo.setPost(post);
-            photo.setLink(generateShortLinkForFile(generateShortLinkForFile(uniqueFileName)));
+            photo.setLink(generateShortLinkForFile(uniqueFileName));
             photo.setName(uniqueFileName);
             photoList.add(photo);
         }
