@@ -15,6 +15,7 @@ import org.springframework.mock.web.MockPart;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import ru.skillbox.postservice.config.PostgreSQLContainerConfig;
+import ru.skillbox.postservice.config.S3Configuration;
 import ru.skillbox.postservice.dto.request.PostDtoRequest;
 import ru.skillbox.postservice.dto.response.PostDtoResponse;
 
@@ -32,7 +33,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(classes = PostgreSQLContainerConfig.class)
+@SpringBootTest(classes = {PostgreSQLContainerConfig.class, S3Configuration.class})
 @AutoConfigureMockMvc
 public class PostControllerTest {
 

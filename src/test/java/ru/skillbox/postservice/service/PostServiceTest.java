@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = ConfigPostService.class, initializers = ConfigDataApplicationContextInitializer.class)
-public class PostServiceTest {
+class PostServiceTest {
 
     @Autowired
     private PostService postService;
@@ -145,7 +145,7 @@ public class PostServiceTest {
         Mockito.when(postRepository.findById(Mockito.any(UUID.class))).thenReturn(Optional.of(post));
 
         assertThat(postService.getPostById(postId).getId().toString())
-                .isEqualTo("1fa11f11-1111-1111-b1fc-1c111f11afa1");
+                .hasToString("1fa11f11-1111-1111-b1fc-1c111f11afa1");
     }
 
     @Test

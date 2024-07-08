@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static ru.skillbox.postservice.exception.enums.ExceptionMessage.POST_NOT_FOUND_EXCEPTION_MESSAGE;
+
 @Service
 public class PostServiceImpl implements PostService {
 
@@ -74,7 +76,7 @@ public class PostServiceImpl implements PostService {
     public PostDtoResponse getPostById(UUID uuid) throws PostNotFoundException {
         Optional<Post> optionalPost = postRepository.findById(uuid);
         if (optionalPost.isEmpty()) {
-            throw new PostNotFoundException("Пост с указанным идентификатором не найден.");
+            throw new PostNotFoundException(POST_NOT_FOUND_EXCEPTION_MESSAGE.getExceptionMessage());
         }
 
         return postMapper.postToPostDtoResponse(optionalPost.get());
@@ -85,7 +87,7 @@ public class PostServiceImpl implements PostService {
     public void deletePostById(UUID uuid) throws PostNotFoundException, IOException {
         Optional<Post> optionalPost = postRepository.findById(uuid);
         if (optionalPost.isEmpty()) {
-            throw new PostNotFoundException("Пост с указанным идентификатором не найден.");
+            throw new PostNotFoundException(POST_NOT_FOUND_EXCEPTION_MESSAGE.getExceptionMessage());
         }
 
         List<S3Object> s3ObjectList = new ArrayList<>();
@@ -111,7 +113,7 @@ public class PostServiceImpl implements PostService {
 
         Optional<Post> optionalPost = postRepository.findById(uuid);
         if (optionalPost.isEmpty()) {
-            throw new PostNotFoundException("Пост с указанным идентификатором не найден.");
+            throw new PostNotFoundException(POST_NOT_FOUND_EXCEPTION_MESSAGE.getExceptionMessage());
         }
 
         List<String> namesDownloadedFiles = new ArrayList<>();
@@ -148,7 +150,7 @@ public class PostServiceImpl implements PostService {
 
         Optional<Post> optionalPost = postRepository.findById(postId);
         if (optionalPost.isEmpty()) {
-            throw new PostNotFoundException("Пост с указанным идентификатором не найден.");
+            throw new PostNotFoundException(POST_NOT_FOUND_EXCEPTION_MESSAGE.getExceptionMessage());
         }
 
         List<String> namesDownloadedFiles = new ArrayList<>();
@@ -198,7 +200,7 @@ public class PostServiceImpl implements PostService {
     public List<PostPhotoDtoResponse> getPostPhotos(UUID postId) throws PostNotFoundException {
         Optional<Post> optionalPost = postRepository.findById(postId);
         if (optionalPost.isEmpty()) {
-            throw new PostNotFoundException("Пост с указанным идентификатором не найден.");
+            throw new PostNotFoundException(POST_NOT_FOUND_EXCEPTION_MESSAGE.getExceptionMessage());
         }
 
         return photoMapper.photoListToPostPhotoDtoResponseList(optionalPost.get().getPhotos());
