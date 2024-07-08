@@ -47,6 +47,7 @@ dependencies {
 	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+	testImplementation "org.testcontainers:localstack:1.19.8"
 }
 
 tasks.named('test') {
@@ -67,6 +68,8 @@ sonar {
 		property 'sonar.coverage.exclusions', 'src/main/java/ru/skillbox/postservice/model/**, ' +
 				'src/main/java/ru/skillbox/postservice/dto/**, ' +
 				'src/main/java/ru/skillbox/postservice/exception/**, ' +
+				'src/main/java/ru/skillbox/postservice/config/**, ' +
+				'src/main/java/ru/skillbox/postservice/mapper/**, ' +
 				'src/main/java/ru/skillbox/postservice/*'
 	}
 }
