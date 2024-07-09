@@ -1,0 +1,56 @@
+namespace: &namespace default
+
+
+configMap:
+  name: post-service-config
+
+
+database:
+  name: users
+  username: postgre_user
+  password: postgre_secret_password
+  storagePath: /postgresql-storage-default
+  deployment:
+    name: deployment-postgresql
+    namespace: *namespace
+  replicas:
+    count: 1
+  label:
+    app: postgresql
+  container:
+    name: postgresql-container
+    port: 5432
+  image:
+    name: postgres
+    version: latest
+  service:
+    name: service-postgresql
+    port: 5432
+    nodePort: 31001
+
+
+backendPostService:
+  label:
+    app: backend-post-service
+  deployment:
+    name: deployment-backend-post-service
+    namespace: *namespace
+  replicas:
+    count: 1
+  container:
+    name: backend-post-service-container
+    port: 8080
+  image:
+    name: euchekavelo/backend-post-service
+    version: latest-default
+  service:
+    name: service-backend-post-service
+    port: 80
+    nodePort: 31000
+  datasource:
+    prefixConnectionUrl: jdbc:postgresql
+
+
+ingress:
+  name: backend-post-service-ingress
+  host: postservice-default.local

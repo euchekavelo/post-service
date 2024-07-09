@@ -1,0 +1,17 @@
+namespace: &namespace feature
+
+database:
+  storagePath: /postgresql-storage-feature
+  service:
+    nodePort: 31004
+
+
+backendPostService:
+  image:
+    version: latest-feature
+  service:
+    nodePort: 31005
+
+
+ingress:
+  host: postservice-feature.local

@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.backendPostService.deployment.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.backendPostService.label.app }}
+spec:
+  replicas: {{ .Values.backendPostService.replicas.count}}
+  selector: 
+    matchLabels:
+      app: {{ .Values.backendPostService.label.app }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.backendPostService.label.app }}
+        date: "{{ now | unixEpoch }}"
+    spec:
+      containers:
+      - name: {{ .Values.backendPostService.container.name }}
+        image: {{ .Values.backendPostService.image.name }}:{{ .Values.backendPostService.image.version }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ .Values.backendPostService.container.port }}
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.configMap.name }}
+              key: DATABASE_URL
+        - name: DATABASE_USER
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.configMap.name }}
+              key: DATABASE_USER
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.configMap.name }}
+              key: DATABASE_PASSWORD
+      imagePullSecrets:
+        - name: private-docker-registry
+
+
+---
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.backendPostService.service.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  type: LoadBalancer
+  selector: 
+    app: {{ .Values.backendPostService.label.app }}
+  ports:
+  - protocol: TCP
+    port: {{ .Values.backendPostService.service.port }}
+    targetPort: {{ .Values.backendPostService.container.port }}
+    nodePort: {{ .Values.backendPostService.service.nodePort }}

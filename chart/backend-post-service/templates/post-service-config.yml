@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.configMap.name }}
+  namespace: {{ .Values.namespace }}
+data:
+  POSTGRES_DB: {{ .Values.database.name }}
+  DATABASE_URL: {{ .Values.backendPostService.datasource.prefixConnectionUrl }}://{{ .Values.database.service.name }}:{{ .Values.database.service.port }}/{{ .Values.database.name }}
+  DATABASE_USER: {{ .Values.database.username }}
+  DATABASE_PASSWORD: {{ .Values.database.password }}
