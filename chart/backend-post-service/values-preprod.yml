@@ -1,0 +1,17 @@
+namespace: &namespace preprod
+
+database:
+  storagePath: /postgresql-storage-preprod
+  service:
+    nodePort: 31006
+
+
+backendPostService:
+  image:
+    version: latest-preprod
+  service:
+    nodePort: 31007
+
+
+ingress:
+  host: postservice-preprod.local

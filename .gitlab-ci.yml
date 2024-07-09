@@ -1,0 +1,131 @@
+before_script:
+  - CHCP 65001
+
+variables:
+  BRANCH_FEATURE: feature
+  BRANCH_PREPROD: preprod
+  BRANCH_DEV: dev
+  BRANCH_PROD: main
+  APP_IMAGE: $APP_IMAGE_NAME
+  JACOCO_BUILD_FILES_PATH: build/
+
+stages:
+  - test
+  - build
+  - deploy
+  - release
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "feature" || $CI_COMMIT_BRANCH == "dev"
+          || $CI_COMMIT_BRANCH == "preprod" || $CI_COMMIT_BRANCH == "main"
+
+test-job:
+  stage: test
+  script:
+    - ./gradlew clean test
+  cache:
+    paths:
+      - $JACOCO_BUILD_FILES_PATH
+    policy: push
+  tags:
+    - windows
+
+
+code-quality-job:
+  stage: test
+  cache:
+    paths:
+      - $JACOCO_BUILD_FILES_PATH
+    policy: pull
+  script:
+    - ./gradlew sonar
+  tags:
+    - windows
+
+
+build-job:
+  stage: build
+  before_script:
+    - docker login -u $DOCKER_HUB_LOGIN -p $DOCKER_HUB_PASSWORD
+  script:
+    - ./gradlew clean bootJar
+    - docker build -t ${APP_IMAGE}:$(git describe --tags --abbrev=0)-${CI_COMMIT_BRANCH} .
+    - docker push ${APP_IMAGE}:$(git describe --tags --abbrev=0)-${CI_COMMIT_BRANCH}
+  tags:
+    - windows
+
+
+.deploy-to-stand-template:
+  stage: deploy
+  variables:
+    DEPLOY_COMMAND: helm upgrade --install
+                    --set backendPostService.image.version=$(git describe --tags --abbrev=0)-${CI_COMMIT_BRANCH}
+                    backend-post-service-${ENV} ./backend-post-service
+                    -f ./backend-post-service/values-${ENV}.yml
+  script:
+    - cd ./chart
+    - Invoke-Expression $DEPLOY_COMMAND
+  environment:
+    name: $ENV
+  tags:
+    - windows
+
+
+deploy-to-feature-job:
+  extends: .deploy-to-stand-template
+  variables:
+    ENV: feature
+  rules:
+    - if: $CI_COMMIT_BRANCH == $BRANCH_FEATURE
+
+
+deploy-to-dev-job:
+  extends: .deploy-to-stand-template
+  variables:
+    ENV: dev
+  rules:
+    - if: $CI_COMMIT_BRANCH == $BRANCH_DEV
+
+
+deploy-to-preprod-job:
+  extends: .deploy-to-stand-template
+  variables:
+    ENV: preprod
+  rules:
+    - if: $CI_COMMIT_BRANCH == $BRANCH_PREPROD
+      when: manual
+
+
+deploy-to-prod-job:
+  extends: .deploy-to-stand-template
+  variables:
+    ENV: prod
+  rules:
+    - if: $CI_COMMIT_BRANCH == $BRANCH_PROD
+      when: manual
+
+
+create-release-job:
+  stage: release
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $BRANCH_PROD
+  script:
+    - $global:tag_name = "$(git describe --tags --abbrev=0)"
+    - |
+      $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+      $headers.Add("Content-Type", "application/json")
+      $headers.Add("PRIVATE-TOKEN", ${GITLAB_TOKEN})
+
+      $body = @"
+      {
+          `"tag_name`": `"$tag_name`",
+          `"description`": `"Stable release version.`"
+      }
+      "@
+
+      Invoke-RestMethod 'https://gitlab.com/api/v4/projects/55960702/releases' -Method 'POST' `
+                        -Headers $headers `
+                        -Body $body
+  tags:
+    - windows

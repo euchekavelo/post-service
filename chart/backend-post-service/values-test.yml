@@ -1,0 +1,17 @@
+namespace: &namespace test
+
+database:
+  storagePath: /postgresql-storage-test
+  service:
+    nodePort: 31010
+
+
+backendPostService:
+  image:
+    version: latest-test
+  service:
+    nodePort: 31011
+
+
+ingress:
+  host: postservice-test.local

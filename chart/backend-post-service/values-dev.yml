@@ -1,0 +1,17 @@
+namespace: &namespace dev
+
+database:
+  storagePath: /postgresql-storage-dev
+  service:
+    nodePort: 31002
+
+
+backendPostService:
+  image:
+    version: latest-dev
+  service:
+    nodePort: 31003
+
+
+ingress:
+  host: postservice-dev.local
