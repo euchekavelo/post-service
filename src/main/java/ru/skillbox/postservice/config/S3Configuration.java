@@ -1,6 +1,7 @@
 package ru.skillbox.postservice.config;
 
 import com.amazonaws.ClientConfiguration;
+import com.amazonaws.Protocol;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -35,6 +36,7 @@ public class S3Configuration {
     public ClientConfiguration clientConfiguration() {
         ClientConfiguration clientConfiguration = new ClientConfiguration();
         clientConfiguration.setSignerOverride(s3MinioProperties.getSigner());
+        clientConfiguration.withProtocol(Protocol.HTTP);
         return clientConfiguration;
     }
 

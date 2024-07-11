@@ -8,3 +8,8 @@ data:
   DATABASE_URL: {{ .Values.backendPostService.datasource.prefixConnectionUrl }}://{{ .Values.database.service.name }}:{{ .Values.database.service.port }}/{{ .Values.database.name }}
   DATABASE_USER: {{ .Values.database.username }}
   DATABASE_PASSWORD: {{ .Values.database.password }}
+  MINIO_ENDPOINT: {{ .Values.s3.service.name }}:{{ .Values.s3.service.server.port }}
+  MINIO_ACCESS_KEY: ""
+  MINIO_SECRET_KEY: ""
+  MINIO_REGION: {{ .Values.s3.minioRegion }}
+  MINIO_BUCKET_NAME: {{ .Values.s3.minioBucketName }}
