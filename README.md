@@ -37,14 +37,20 @@ minikube start --vm-driver=virtualbox --no-vtx-check
 minikube addons enable ingress
 ```
 
-3. На подготовленной виртуальной машине Minikube'а создать каталоги для баз данных, используя учетные данные
+3. На подготовленной виртуальной машине Minikube'а создать каталоги для баз данных и хранилищ, используя учетные данные
    суперпользователя **root**, а также следующие команды:
 ```bash
 cd ../
-mkdir post-service/postgresql-storage-feature
-mkdir post-service/postgresql-storage-dev
-mkdir post-service/postgresql-storage-preprod
-mkdir post-service/postgresql-storage-prod
+mkdir -p post-service/postgresql-storage-default
+mkdir -p post-service/postgresql-storage-feature
+mkdir -p post-service/postgresql-storage-dev
+mkdir -p post-service/postgresql-storage-preprod
+mkdir -p post-service/postgresql-storage-prod
+mkdir -p post-service/minio-storage-default
+mkdir -p post-service/minio-storage-feature
+mkdir -p post-service/minio-storage-dev
+mkdir -p post-service/minio-storage-preprod
+mkdir -p post-service/minio-storage-prod
 ```
 
 4. На локальной хост-машине ввести следующие команды для создания пространства имен для каждой из сред:
@@ -98,6 +104,10 @@ kubectl create secret docker-registry private-docker-registry `
     ```   
 
 3. Собрать docker-образ микросервиса для интересующего стенда:
+    - Для пространства по умолчанию (default)
+      ```bash
+      docker build -t euchekavelo/backend-post-service:latest-default .
+      ```
     - Для стенда **feature**
       ```bash
       docker build -t euchekavelo/backend-post-service:latest-feature .
@@ -112,6 +122,10 @@ kubectl create secret docker-registry private-docker-registry `
       ```    
 
 4. Внутри корневой папки проекта перейти в директорию **chart** и выполнить ряд команд:
+    - Для развертывания chart-файла на **default**-неймспейсе:
+         ```bash
+         helm upgrade --install backend-post-service ./backend-post-service
+         ```
     - Для развертывания chart-файла на **feature**-неймспейсе:
          ```bash
          helm upgrade --install backend-post-service-feature ./backend-post-service -f ./backend-post-service/values-feature.yml
@@ -124,6 +138,10 @@ kubectl create secret docker-registry private-docker-registry `
          ```bash
          helm upgrade --install backend-post-service-preprod ./backend-post-service -f ./backend-post-service/values-preprod.yml
          ```
+   - Для развертывания chart-файла на **prod**-неймспейсе:
+        ```bash
+        helm upgrade --install backend-post-service-prod ./backend-post-service -f ./backend-post-service/values-prod.yml
+        ```
 
 ---
 

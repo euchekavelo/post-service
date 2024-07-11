@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.s3.statefulSet.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  serviceName: {{ .Values.s3.service.name }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.s3.label.app }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.s3.label.app }}
+    spec:
+      containers:
+        - name: {{ .Values.s3.statefulSet.container.name }}
+          image: {{ .Values.s3.statefulSet.image.name }}:{{ .Values.s3.statefulSet.image.version }}
+          ports:
+            - containerPort: {{ .Values.s3.statefulSet.container.ui.port }}
+              name: minio-web-ui
+            - containerPort: {{ .Values.s3.statefulSet.container.server.port }}
+              name: minio-server
+          env:
+            - name: MINIO_ROOT_USER
+              value: minioadmin
+            - name: MINIO_ROOT_PASSWORD
+              value: minioadmin
+            - name: MINIO_ACCESS_KEY
+              value: {{ .Values.s3.minioAccessKey }}
+            - name: MINIO_SECRET_KEY
+              value: {{ .Values.s3.minioSecretKey}}
+          volumeMounts:
+            - name: {{ .Values.s3.volume.name }}
+              mountPath: {{ .Values.s3.volume.storagePath }}
+          command:
+            - /bin/bash
+            - -c
+          args:
+            - minio server {{ .Values.s3.volume.storagePath }} --console-address :{{ .Values.s3.statefulSet.container.ui.port }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ .Values.s3.volume.name }}
+        namespace: {{ .Values.namespace }}
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 600Mi
+
+
+---
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.s3.service.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: {{ .Values.s3.label.app }}
+  ports:
+    - port: {{ .Values.s3.service.ui.port }}
+      nodePort: {{ .Values.s3.service.ui.nodePort }}
+      name: minio-web-ui
+      protocol: TCP
+    - port: {{ .Values.s3.service.server.port }}
+      nodePort: {{ .Values.s3.service.server.nodePort }}
+      name: minio-server
+      protocol: TCP
+  type: NodePort
+
+
+---
+
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.s3.ingress.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  rules:
+    - host: {{ .Values.s3.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.s3.service.name }}
+                port:
+                  number: {{ .Values.s3.service.ui.port }}

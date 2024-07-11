@@ -6,10 +6,10 @@ configMap:
 
 
 database:
-  name: users
+  name: posts
   username: postgre_user
   password: postgre_secret_password
-  storagePath: /postgresql-storage-default
+  storagePath: /post-service/postgresql-storage-default
   deployment:
     name: deployment-postgresql
     namespace: *namespace
@@ -26,7 +26,7 @@ database:
   service:
     name: service-postgresql
     port: 5432
-    nodePort: 31001
+    nodePort: 31100
 
 
 backendPostService:
@@ -39,16 +39,49 @@ backendPostService:
     count: 1
   container:
     name: backend-post-service-container
-    port: 8080
+    port: 8081
   image:
     name: euchekavelo/backend-post-service
     version: latest-default
   service:
     name: service-backend-post-service
-    port: 80
-    nodePort: 31000
+    port: 8081
+    nodePort: 31101
   datasource:
     prefixConnectionUrl: jdbc:postgresql
+
+
+s3:
+  label:
+    app: minio
+  service:
+    name: minio-service
+    ui:
+      port: 9001
+      nodePort: 31102
+    server:
+      port: 9000
+      nodePort: 31103
+  ingress:
+    name: minio-ingress
+    host: post-service-minio-default.local
+  statefulSet:
+    name: minio-statefulset
+    container:
+      name: minio-container
+      ui:
+        port: 9001
+      server:
+        port: 9000
+    image:
+      name: quay.io/minio/minio
+      version: latest
+  volume:
+    name: minio-pvc
+    storagePath: /post-service/minio-storage-default
+  minioEndpoint: test
+  minioRegion: ru-center
+  minioBucketName: posts
 
 
 ingress:
