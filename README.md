@@ -46,11 +46,13 @@ mkdir -p post-service/postgresql-storage-feature
 mkdir -p post-service/postgresql-storage-dev
 mkdir -p post-service/postgresql-storage-preprod
 mkdir -p post-service/postgresql-storage-prod
+mkdir -p post-service/postgresql-storage-test
 mkdir -p post-service/minio-storage-default
 mkdir -p post-service/minio-storage-feature
 mkdir -p post-service/minio-storage-dev
 mkdir -p post-service/minio-storage-preprod
 mkdir -p post-service/minio-storage-prod
+mkdir -p post-service/minio-storage-test
 ```
 
 4. На локальной хост-машине ввести следующие команды для создания пространства имен для каждой из сред:
@@ -59,6 +61,7 @@ kubectl create namespace feauture
 kubectl create namespace dev
 kubectl create namespace preprod
 kubectl create namespace prod
+kubectl create namespace test
 ```
 
 5. На локальной хост-машине для каждой среды создать **secret**, хранящий настройки подключения к приватному хранилищу
@@ -120,6 +123,14 @@ kubectl create secret docker-registry private-docker-registry `
       ```bash
       docker build -t euchekavelo/backend-post-service:latest-preprod .
       ```    
+   - Для стенда **prod**
+     ```bash
+     docker build -t euchekavelo/backend-post-service:latest-prod .
+     ```  
+   - Для стенда **test**
+     ```bash
+     docker build -t euchekavelo/backend-post-service:latest-test .
+     ```
 
 4. Внутри корневой папки проекта перейти в директорию **chart** и выполнить ряд команд:
     - Для развертывания chart-файла на **default**-неймспейсе:
