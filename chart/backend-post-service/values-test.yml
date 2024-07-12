@@ -3,15 +3,27 @@ namespace: &namespace test
 database:
   storagePath: /postgresql-storage-test
   service:
-    nodePort: 31010
+    nodePort: 31250
 
 
 backendPostService:
   image:
     version: latest-test
   service:
-    nodePort: 31011
+    nodePort: 31251
+
+
+s3:
+  service:
+    ui:
+      nodePort: 31252
+    server:
+      nodePort: 31253
+  ingress:
+    host: post-service-minio-test.local
+  volume:
+    storagePath: /post-service/minio-storage-test
 
 
 ingress:
-  host: postservice-test.local
+  host: post-service-test.local

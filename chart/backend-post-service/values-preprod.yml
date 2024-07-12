@@ -3,15 +3,27 @@ namespace: &namespace preprod
 database:
   storagePath: /postgresql-storage-preprod
   service:
-    nodePort: 31006
+    nodePort: 31230
 
 
 backendPostService:
   image:
     version: latest-preprod
   service:
-    nodePort: 31007
+    nodePort: 31231
+
+
+s3:
+  service:
+    ui:
+      nodePort: 31232
+    server:
+      nodePort: 31233
+  ingress:
+    host: post-service-minio-preprod.local
+  volume:
+    storagePath: /post-service/minio-storage-preprod
 
 
 ingress:
-  host: postservice-preprod.local
+  host: post-service-preprod.local

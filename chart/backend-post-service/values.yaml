@@ -26,7 +26,7 @@ database:
   service:
     name: service-postgresql
     port: 5432
-    nodePort: 31100
+    nodePort: 31200
 
 
 backendPostService:
@@ -46,7 +46,7 @@ backendPostService:
   service:
     name: service-backend-post-service
     port: 8081
-    nodePort: 31101
+    nodePort: 31201
   datasource:
     prefixConnectionUrl: jdbc:postgresql
 
@@ -58,10 +58,10 @@ s3:
     name: minio-service
     ui:
       port: 9001
-      nodePort: 31102
+      nodePort: 31202
     server:
       port: 9000
-      nodePort: 31103
+      nodePort: 31203
   ingress:
     name: minio-ingress
     host: post-service-minio-default.local
@@ -79,11 +79,10 @@ s3:
   volume:
     name: minio-pvc
     storagePath: /post-service/minio-storage-default
-  minioEndpoint: test
   minioRegion: ru-center
   minioBucketName: posts
 
 
 ingress:
   name: backend-post-service-ingress
-  host: postservice-default.local
+  host: post-service-default.local
