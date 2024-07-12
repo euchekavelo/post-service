@@ -124,7 +124,7 @@ create-release-job:
       }
       "@
 
-      Invoke-RestMethod 'https://gitlab.com/api/v4/projects/55960702/releases' -Method 'POST' `
+      Invoke-RestMethod 'https://gitlab.com/api/v4/projects/59850097/releases' -Method 'POST' `
                         -Headers $headers `
                         -Body $body
   tags:
