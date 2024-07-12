@@ -3,15 +3,27 @@ namespace: &namespace feature
 database:
   storagePath: /postgresql-storage-feature
   service:
-    nodePort: 31004
+    nodePort: 31220
 
 
 backendPostService:
   image:
     version: latest-feature
   service:
-    nodePort: 31005
+    nodePort: 31221
+
+
+s3:
+  service:
+    ui:
+      nodePort: 31222
+    server:
+      nodePort: 31223
+  ingress:
+    host: post-service-minio-feature.local
+  volume:
+    storagePath: /post-service/minio-storage-feature
 
 
 ingress:
-  host: postservice-feature.local
+  host: post-service-feature.local
