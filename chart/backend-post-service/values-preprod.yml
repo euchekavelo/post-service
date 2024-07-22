@@ -25,5 +25,10 @@ s3:
     storagePath: /post-service/minio-storage-preprod
 
 
+zipkin:
+  service:
+    nodePort: 31234
+
+
 ingress:
   host: post-service-preprod.local

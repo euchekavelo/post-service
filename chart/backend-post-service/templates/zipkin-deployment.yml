@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.zipkin.deployment.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.zipkin.label.app }}
+spec:
+  replicas: {{ .Values.zipkin.replicas.count}}
+  selector:
+    matchLabels:
+      app: {{ .Values.zipkin.label.app }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.zipkin.label.app }}
+    spec:
+      containers:
+        - name: {{ .Values.zipkin.container.name }}
+          image: {{ .Values.zipkin.image.name }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.zipkin.container.port }}
+
+
+---
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.zipkin.service.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  type: LoadBalancer
+  selector:
+    app: {{ .Values.zipkin.label.app }}
+  ports:
+    - protocol: TCP
+      port: {{ .Values.zipkin.service.port }}
+      targetPort: {{ .Values.zipkin.container.port }}
+      nodePort: {{ .Values.zipkin.service.nodePort }}

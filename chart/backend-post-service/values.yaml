@@ -83,6 +83,25 @@ s3:
   minioBucketName: posts
 
 
+zipkin:
+  label:
+    app: zipkin-post-service
+  deployment:
+    name: deployment-zipkin-post-service
+    namespace: *namespace
+  replicas:
+    count: 1
+  container:
+    name: zipkin-post-service-container
+    port: 9411
+  image:
+    name: openzipkin/zipkin
+  service:
+    name: service-zipkin-post-service
+    port: 9411
+    nodePort: 31204
+
+
 ingress:
   name: backend-post-service-ingress
   host: post-service-default.local
