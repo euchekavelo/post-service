@@ -63,6 +63,11 @@ spec:
             configMapKeyRef:
               name: {{ .Values.configMap.name }}
               key: MINIO_BUCKET_NAME
+        - name: ZIPKIN_TRACING_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.configMap.name }}
+              key: ZIPKIN_TRACING_ENDPOINT
       imagePullSecrets:
         - name: private-docker-registry
 

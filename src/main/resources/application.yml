@@ -28,7 +28,21 @@ aws:
     minio:
       endpoint: ${MINIO_ENDPOINT:http://localhost:9100/}
       signer: AWSS3V4SignerType
-      access-key: ${MINIO_ACCESS_KEY:RzyURTi35DB023mcKrLX}
-      secret-key: ${MINIO_SECRET_KEY:IhPlt4HwJJ9XbTLDfRIzrujwzS6o3k3ZyWQzFMdn}
+      access-key: ${MINIO_ACCESS_KEY:noSDoxstMA0MsiFjduFM}
+      secret-key: ${MINIO_SECRET_KEY:WSM1VYjNcHTMuheVploxVSa6O9HsGCMKQhtm1qIX}
       region: ${MINIO_REGION:ru-center}
       bucket-posts: ${MINIO_BUCKET_NAME:posts}
+
+
+management:
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_TRACING_ENDPOINT:http://localhost:9511/api/v2/spans}
+  tracing:
+    sampling:
+      probability: 1.0
+
+
+logging:
+  pattern:
+    correlation: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"

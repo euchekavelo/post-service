@@ -1,5 +1,6 @@
 package ru.skillbox.postservice.controller;
 
+import io.micrometer.observation.annotation.Observed;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -41,6 +42,7 @@ public class PostController {
         this.postService = postService;
     }
 
+    @Observed(contextualName = "Tracing createPost method controller")
     @Operation(summary = "Создать пост пользователя.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", content = {
@@ -59,6 +61,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(postDtoRequest, files));
     }
 
+    @Observed(contextualName = "Tracing getPostById method controller")
     @Operation(summary = "Получить информацию о посте пользователя по заданному индентификатору.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = {
@@ -75,6 +78,7 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostById(uuid));
     }
 
+    @Observed(contextualName = "Tracing deletePostById method controller")
     @Operation(summary = "Удалить пост пользователя по заданному индентификатору.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204"),
@@ -94,6 +98,7 @@ public class PostController {
         return ResponseEntity.noContent().build();
     }
 
+    @Observed(contextualName = "Tracing updatePostById method controller")
     @Operation(summary = "Обновить пост пользователя по заданному индентификатору.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = {
@@ -116,6 +121,7 @@ public class PostController {
         return ResponseEntity.ok(postService.updatePostById(uuid, postDtoRequest, files));
     }
 
+    @Observed(contextualName = "Tracing getAllPosts method controller")
     @Operation(summary = "Получить информацию о всех постах пользователей.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = {
@@ -129,6 +135,7 @@ public class PostController {
         return ResponseEntity.ok(postService.getAllPosts());
     }
 
+    @Observed(contextualName = "Tracing addPhotosToPost method controller")
     @Operation(summary = "Добавить фото к конкретному посту пользователя.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", content = {
@@ -153,6 +160,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(postService.addPhotosToPost(postId, files));
     }
 
+    @Observed(contextualName = "Tracing getPostPhotos method controller")
     @Operation(summary = "Получить информацию о всех фотографиях конкретного поста пользователя.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = {
@@ -172,6 +180,7 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostPhotos(postId));
     }
 
+    @Observed(contextualName = "Tracing getPostPhotoById method controller")
     @Operation(summary = "Получить информацию о конретной фотографии конкретного поста пользователя.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = {
@@ -191,6 +200,7 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostPhotoByIdAndPostId(postId, photoId));
     }
 
+    @Observed(contextualName = "Tracing deletePostPhotoById method controller")
     @Operation(summary = "Удалить конкретную фотографию из конкретного поста пользователя.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204"),

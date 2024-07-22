@@ -13,3 +13,4 @@ data:
   MINIO_SECRET_KEY: ""
   MINIO_REGION: {{ .Values.s3.minioRegion }}
   MINIO_BUCKET_NAME: {{ .Values.s3.minioBucketName }}
+  ZIPKIN_TRACING_ENDPOINT: http://{{ .Values.zipkin.service.name }}:{{ .Values.zipkin.service.port }}/api/v2/spans
