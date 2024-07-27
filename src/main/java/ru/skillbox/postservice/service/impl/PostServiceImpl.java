@@ -2,6 +2,9 @@ package ru.skillbox.postservice.service.impl;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
+import io.micrometer.observation.annotation.Observed;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,8 +28,9 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static ru.skillbox.postservice.exception.enums.ExceptionMessage.POST_NOT_FOUND_EXCEPTION_MESSAGE;
+import static ru.skillbox.postservice.exception.enums.ExceptionMessage.*;
 
+@Observed
 @Service
 public class PostServiceImpl implements PostService {
 
@@ -37,6 +41,7 @@ public class PostServiceImpl implements PostService {
     private final PostMapper postMapper;
     private final PhotoMapper photoMapper;
     private static final List<String> CORRECT_FILE_FORMATS = List.of("PNG", "JPEG", "JPG");
+    private final Logger logger = LoggerFactory.getLogger(PostServiceImpl.class);
 
     @Autowired
     public PostServiceImpl(S3Repository s3Repository, S3MinioProperties s3MinioProperties, PostRepository postRepository,
@@ -67,6 +72,7 @@ public class PostServiceImpl implements PostService {
 
             return postMapper.postToPostDtoResponse(savedPost);
         } catch (Exception ex) {
+            logger.error(ex.getMessage());
             namesDownloadedFiles.forEach(s3Repository::delete);
             throw ex;
         }
@@ -76,6 +82,7 @@ public class PostServiceImpl implements PostService {
     public PostDtoResponse getPostById(UUID uuid) throws PostNotFoundException {
         Optional<Post> optionalPost = postRepository.findById(uuid);
         if (optionalPost.isEmpty()) {
+            logger.error(POST_NOT_FOUND_EXCEPTION_MESSAGE.getExceptionMessage());
             throw new PostNotFoundException(POST_NOT_FOUND_EXCEPTION_MESSAGE.getExceptionMessage());
         }
 
@@ -87,6 +94,7 @@ public class PostServiceImpl implements PostService {
     public void deletePostById(UUID uuid) throws PostNotFoundException, IOException {
         Optional<Post> optionalPost = postRepository.findById(uuid);
         if (optionalPost.isEmpty()) {
+            logger.error(POST_NOT_FOUND_EXCEPTION_MESSAGE.getExceptionMessage());
             throw new PostNotFoundException(POST_NOT_FOUND_EXCEPTION_MESSAGE.getExceptionMessage());
         }
 
@@ -101,6 +109,7 @@ public class PostServiceImpl implements PostService {
             fillListDeletedS3Objects(namesFiles, s3ObjectList);
             postRepository.delete(post);
         } catch (Exception ex) {
+            logger.error(ex.getMessage());
             uploadS3ObjectList(s3ObjectList);
             throw ex;
         }
@@ -113,6 +122,7 @@ public class PostServiceImpl implements PostService {
 
         Optional<Post> optionalPost = postRepository.findById(uuid);
         if (optionalPost.isEmpty()) {
+            logger.error(POST_NOT_FOUND_EXCEPTION_MESSAGE.getExceptionMessage());
             throw new PostNotFoundException(POST_NOT_FOUND_EXCEPTION_MESSAGE.getExceptionMessage());
         }
 
@@ -129,6 +139,7 @@ public class PostServiceImpl implements PostService {
 
             return postMapper.postToPostDtoResponse(savedPost);
         } catch (Exception ex) {
+            logger.error(ex.getMessage());
             namesDownloadedFiles.forEach(s3Repository::delete);
             throw ex;
         }
@@ -145,11 +156,13 @@ public class PostServiceImpl implements PostService {
             IncorrectFileFormatException, IOException, IncorrectFileContentException {
 
         if (areAllFilesEmpty(files)) {
-            throw new IncorrectFileContentException("В списке файлов обнаружены пустые файлы.");
+            logger.error(INCORRECT_FILE_CONTENT_EXCEPTION_MESSAGE.getExceptionMessage());
+            throw new IncorrectFileContentException(INCORRECT_FILE_CONTENT_EXCEPTION_MESSAGE.getExceptionMessage());
         }
 
         Optional<Post> optionalPost = postRepository.findById(postId);
         if (optionalPost.isEmpty()) {
+            logger.error(POST_NOT_FOUND_EXCEPTION_MESSAGE.getExceptionMessage());
             throw new PostNotFoundException(POST_NOT_FOUND_EXCEPTION_MESSAGE.getExceptionMessage());
         }
 
@@ -162,6 +175,7 @@ public class PostServiceImpl implements PostService {
 
             return photoMapper.photoListToPostPhotoDtoResponseList(savedPhotos);
         } catch (Exception ex) {
+            logger.error(ex.getMessage());
             namesDownloadedFiles.forEach(s3Repository::delete);
             throw ex;
         }
@@ -171,7 +185,8 @@ public class PostServiceImpl implements PostService {
     public PostPhotoDtoResponse getPostPhotoByIdAndPostId(UUID postId, UUID photoId) throws PhotoNotFoundException {
         Optional<Photo> optionalPhoto = photoRepository.findByIdAndPostId(photoId, postId);
         if (optionalPhoto.isEmpty()) {
-            throw new PhotoNotFoundException("Не удалось найти фото поста по указанным критериям.");
+            logger.error(PHOTO_NOT_FOUND_EXCEPTION_MESSAGE.getExceptionMessage());
+            throw new PhotoNotFoundException(PHOTO_NOT_FOUND_EXCEPTION_MESSAGE.getExceptionMessage());
         }
 
         return photoMapper.photoToPostPhotoDtoResponse(optionalPhoto.get());
@@ -182,7 +197,8 @@ public class PostServiceImpl implements PostService {
     public void deletePostPhotoById(UUID postId, UUID photoId) throws PhotoNotFoundException, IOException {
         Optional<Photo> optionalPhoto = photoRepository.findByIdAndPostId(photoId, postId);
         if (optionalPhoto.isEmpty()) {
-            throw new PhotoNotFoundException("Не удалось найти фото поста по указанным критериям.");
+            logger.error(PHOTO_NOT_FOUND_EXCEPTION_MESSAGE.getExceptionMessage());
+            throw new PhotoNotFoundException(PHOTO_NOT_FOUND_EXCEPTION_MESSAGE.getExceptionMessage());
         }
 
         List<S3Object> s3ObjectList = new ArrayList<>();
@@ -191,6 +207,7 @@ public class PostServiceImpl implements PostService {
             photoRepository.delete(optionalPhoto.get());
             fillListDeletedS3Objects(List.of(optionalPhoto.get().getName()), s3ObjectList);
         } catch (Exception ex) {
+            logger.error(ex.getMessage());
             uploadS3ObjectList(s3ObjectList);
             throw ex;
         }
@@ -200,6 +217,7 @@ public class PostServiceImpl implements PostService {
     public List<PostPhotoDtoResponse> getPostPhotos(UUID postId) throws PostNotFoundException {
         Optional<Post> optionalPost = postRepository.findById(postId);
         if (optionalPost.isEmpty()) {
+            logger.error(POST_NOT_FOUND_EXCEPTION_MESSAGE.getExceptionMessage());
             throw new PostNotFoundException(POST_NOT_FOUND_EXCEPTION_MESSAGE.getExceptionMessage());
         }
 
@@ -225,8 +243,11 @@ public class PostServiceImpl implements PostService {
         for (MultipartFile file : files) {
             if (!isValidFormatFile(file)) {
                 String enumerationFileFormats = String.join(", ", CORRECT_FILE_FORMATS);
-                throw new IncorrectFileFormatException("Неверный формат файла. Рекомендуемые форматы: "
-                        + enumerationFileFormats + ".");
+                String errorMessage = INCORRECT_FILE_FORMAT_EXCEPTION_MESSAGE.getExceptionMessage()
+                        .concat(" Рекомендуемые форматы: " + enumerationFileFormats + ".");
+                logger.error(errorMessage);
+
+                throw new IncorrectFileFormatException(errorMessage);
             }
 
             String uniqueFileName = generateUniqueFileNameForUser(post, file);
